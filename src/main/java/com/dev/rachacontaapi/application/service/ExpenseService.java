@@ -54,6 +54,7 @@ public class ExpenseService {
         return toResponse(expense);
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseResponse> listByGroup(UUID groupId) {
         return expenseRepository.findByGroupId(groupId)
                 .stream()

@@ -108,6 +108,7 @@ public class SettlementService {
         return settlements.stream().map(this::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<SettlementResponse> listByGroup(UUID groupId) {
         return settlementRepository.findByGroupId(groupId)
                 .stream()

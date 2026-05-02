@@ -49,6 +49,7 @@ public class GroupService {
         return toResponse(group);
     }
 
+    @Transactional(readOnly = true)
     public List<GroupResponse> listMyGroups() {
         User currentUser = getCurrentUser();
         return groupMemberRepository.findByGroupId(currentUser.getId())
@@ -57,12 +58,14 @@ public class GroupService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public GroupResponse findById(UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
         return toResponse(group);
     }
-
+    
+    @Transactional(readOnly = true)
     public List<GroupMemberResponse> listMembers(UUID groupId) {
         return groupMemberRepository.findByGroupId(groupId)
                 .stream()
