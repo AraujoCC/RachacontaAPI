@@ -27,8 +27,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody(
                 HttpStatus.BAD_REQUEST,
                 "Erro de validação",
-                fieldErrors
-        ));
+                fieldErrors));
     }
 
     // Recurso não encontrado
@@ -39,8 +38,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
-                null
-        ));
+                null));
     }
 
     // Regras de negócio violadas
@@ -51,8 +49,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
-                null
-        ));
+                null));
     }
 
     // Argumentos inválidos genéricos
@@ -63,18 +60,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage(),
-                null
-        ));
+                null));
     }
 
-    // Fallback — qualquer erro não tratado
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        ex.printStackTrace(); // aparece no terminal
         return ResponseEntity.internalServerError().body(errorBody(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Erro interno do servidor",
-                null
-        ));
+                ex.getMessage(), // mostra a mensagem real
+                null));
     }
 
     private Map<String, Object> errorBody(HttpStatus status, String message, Object details) {
