@@ -1,5 +1,8 @@
 package com.dev.rachacontaapi.application.service;
 
+import com.dev.rachacontaapi.infrastructure.repository.ExpenseRepository;
+import com.dev.rachacontaapi.infrastructure.repository.ExpenseSplitRepository;
+
 import com.dev.rachacontaapi.application.dto.response.SettlementResponse;
 import com.dev.rachacontaapi.domain.enums.SettlementStatus;
 import com.dev.rachacontaapi.domain.model.Group;
@@ -21,6 +24,8 @@ import java.util.*;
 public class SettlementService {
 
     private final SettlementRepository settlementRepository;
+    private final ExpenseRepository expenseRepository; // ← adiciona
+    private final ExpenseSplitRepository expenseSplitRepository; // ← adiciona
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
 
@@ -32,10 +37,10 @@ public class SettlementService {
 
         // 1. Busca total pago e total devido por usuário
         Map<UUID, BigDecimal> totalPaid = toMap(
-                settlementRepository.findTotalPaidPerUserInGroup(groupId));
+                expenseRepository.findTotalPaidPerUserInGroup(groupId)); // ← expenseRepository
 
         Map<UUID, BigDecimal> totalOwed = toMap(
-                settlementRepository.findTotalPaidPerUserInGroup(groupId));
+                expenseSplitRepository.findTotalOwedPerUserInGroup(groupId)); // ← expenseSplitRepository
 
         // 2. Calcula saldo líquido: positivo = credor, negativo = devedor
         Map<UUID, BigDecimal> balance = new HashMap<>();
@@ -146,7 +151,6 @@ public class SettlementService {
                 s.getReceiver().getId(),
                 s.getReceiver().getName(),
                 s.getAmount(),
-                s.getStatus()
-        );
+                s.getStatus());
     }
 }
