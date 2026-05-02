@@ -27,6 +27,7 @@ public class GroupMember extends BaseEntity {
     @Column(nullable = false, length = 10)
     private GroupRole role;
 
+    @Builder.Default  // ← isso garante que o Builder respeita o valor padrão
     @Column(name = "joined_at", nullable = false, updatable = false)
-    private LocalDateTime joinedAt;
+    private LocalDateTime joinedAt = LocalDateTime.now();
 }
