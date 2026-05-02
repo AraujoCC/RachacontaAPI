@@ -31,7 +31,7 @@ public class GroupMember extends BaseEntity {
     private LocalDateTime joinedAt;
 
     @PrePersist
-    private void prePersist() {
+    protected  void prePersist() {
         this.joinedAt = LocalDateTime.now();
     }
 }
