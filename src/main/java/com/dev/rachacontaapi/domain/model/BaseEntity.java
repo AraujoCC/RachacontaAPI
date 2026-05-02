@@ -17,10 +17,5 @@ public abstract class BaseEntity {
     private UUID id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected  void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
+    private LocalDateTime createdAt = LocalDateTime.now(); // ← inicialização direta
 }
