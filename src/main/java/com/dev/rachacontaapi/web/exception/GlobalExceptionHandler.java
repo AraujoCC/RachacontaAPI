@@ -63,15 +63,6 @@ public class GlobalExceptionHandler {
                 null));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-        ex.printStackTrace(); // aparece no terminal
-        return ResponseEntity.internalServerError().body(errorBody(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                ex.getMessage(), // mostra a mensagem real
-                null));
-    }
-
     private Map<String, Object> errorBody(HttpStatus status, String message, Object details) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
