@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.dev.rachacontaapi.infrastructure.security.AuthenticatedUserResolver;
-
+import com.dev.rachacontaapi.application.dto.request.ExpenseSplitRequest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -89,6 +89,14 @@ public class ExpenseService {
     private void createCustomSplits(Expense expense, CreateExpenseRequest request) {
         if (request.splits() == null || request.splits().isEmpty()) {
             throw new BusinessException("Splits customizados são obrigatórios para CUSTOM");
+        }
+
+        BigDecimal totalSplits = request.splits().stream()
+                .map(ExpenseSplitRequest::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalSplits.compareTo(expense.getAmount()) != 0) {
+            throw new BusinessException("A soma das divisões não bate com o valor total da despesa");
         }
 
         request.splits().forEach(splitRequest -> {

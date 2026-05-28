@@ -3,6 +3,7 @@ package com.dev.rachacontaapi.application.dto.request;
 import com.dev.rachacontaapi.domain.enums.SplitType;
 import jakarta.validation.constraints.*;
 
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
