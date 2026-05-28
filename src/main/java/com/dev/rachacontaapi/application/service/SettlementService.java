@@ -132,6 +132,12 @@ public class SettlementService {
         Settlement settlement = settlementRepository.findById(settlementId)
                 .orElseThrow(() -> new BusinessException("Liquidação não encontrada"));
 
+        User currentUser = authenticatedUserResolver.getCurrentUser();
+
+        if (!settlement.getReceiver().getId().equals(currentUser.getId())) {
+            throw new BusinessException("Apenas o recebedor pode confirmar esta liquidação");
+        }
+
         settlement.setStatus(SettlementStatus.CONFIRMED);
         settlementRepository.save(settlement);
 
