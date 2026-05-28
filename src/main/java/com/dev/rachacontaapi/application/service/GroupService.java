@@ -12,9 +12,9 @@ import com.dev.rachacontaapi.infrastructure.repository.GroupRepository;
 import com.dev.rachacontaapi.infrastructure.repository.UserRepository;
 import com.dev.rachacontaapi.web.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.dev.rachacontaapi.infrastructure.security.AuthenticatedUserResolver;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,10 +26,11 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
     @Transactional
     public GroupResponse create(CreateGroupRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = authenticatedUserResolver.getCurrentUser();
 
         Group group = Group.builder()
                 .name(request.name())
@@ -52,7 +53,7 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public List<GroupResponse> listMyGroups() {
-        User currentUser = getCurrentUser();
+        User currentUser = authenticatedUserResolver.getCurrentUser();
         return groupMemberRepository.findByUserId(currentUser.getId())
                 .stream()
                 .map(gm -> toResponse(gm.getGroup()))
@@ -62,7 +63,7 @@ public class GroupService {
     @Transactional(readOnly = true)
     public GroupResponse findById(UUID groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
+                .orElseThrow(() -> new BusinessException("Grupo não encontrado"));
         return toResponse(group);
     }
 
@@ -81,7 +82,7 @@ public class GroupService {
 
     @Transactional
     public void addMember(UUID groupId, UUID userId) {
-        User currentUser = getCurrentUser();
+        User currentUser = authenticatedUserResolver.getCurrentUser();
         GroupMember currentMember = groupMemberRepository.findByGroupIdAndUserId(groupId, currentUser.getId()).orElseThrow(() ->
         new BusinessException("Usuário não pertence ao grupo"));
 
@@ -118,10 +119,4 @@ public class GroupService {
         );
     }
 
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-    }
 }

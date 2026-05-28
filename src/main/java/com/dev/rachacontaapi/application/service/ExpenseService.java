@@ -8,10 +8,12 @@ import com.dev.rachacontaapi.domain.model.ExpenseSplit;
 import com.dev.rachacontaapi.domain.model.Group;
 import com.dev.rachacontaapi.domain.model.User;
 import com.dev.rachacontaapi.infrastructure.repository.*;
+import com.dev.rachacontaapi.web.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.dev.rachacontaapi.infrastructure.security.AuthenticatedUserResolver;
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,13 +29,14 @@ public class ExpenseService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
     @Transactional
     public ExpenseResponse create(UUID groupId, CreateExpenseRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = authenticatedUserResolver.getCurrentUser();
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
+                .orElseThrow(() -> new BusinessException("Grupo não encontrado"));
 
         Expense expense = Expense.builder()
                 .group(group)
@@ -85,12 +88,12 @@ public class ExpenseService {
     // Usa os valores customizados enviados na requisição
     private void createCustomSplits(Expense expense, CreateExpenseRequest request) {
         if (request.splits() == null || request.splits().isEmpty()) {
-            throw new IllegalArgumentException("Splits customizados são obrigatórios para CUSTOM");
+            throw new BusinessException("Splits customizados são obrigatórios para CUSTOM");
         }
 
         request.splits().forEach(splitRequest -> {
             User user = userRepository.findById(splitRequest.userId())
-                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                    .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
             ExpenseSplit split = ExpenseSplit.builder()
                     .expense(expense)
@@ -112,12 +115,5 @@ public class ExpenseService {
                 expense.getPaidBy().getName(),
                 expense.getCreatedAt()
         );
-    }
-
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
     }
 }

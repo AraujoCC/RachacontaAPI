@@ -11,9 +11,11 @@ import com.dev.rachacontaapi.domain.model.User;
 import com.dev.rachacontaapi.infrastructure.repository.GroupRepository;
 import com.dev.rachacontaapi.infrastructure.repository.SettlementRepository;
 import com.dev.rachacontaapi.infrastructure.repository.UserRepository;
+import com.dev.rachacontaapi.web.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.dev.rachacontaapi.infrastructure.security.AuthenticatedUserResolver;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,12 +30,13 @@ public class SettlementService {
     private final ExpenseSplitRepository expenseSplitRepository; // ← adiciona
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
     // Calcula e persiste as liquidações com mínimo de transferências
     @Transactional
     public List<SettlementResponse> calculate(UUID groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
+                .orElseThrow(() -> new BusinessException("Grupo não encontrado"));
 
         // limpa settlements pendentes antigos
         settlementRepository.deleteByGroupIdAndStatus(groupId, SettlementStatus.PENDING);
@@ -127,7 +130,7 @@ public class SettlementService {
     @Transactional
     public SettlementResponse confirm(UUID settlementId) {
         Settlement settlement = settlementRepository.findById(settlementId)
-                .orElseThrow(() -> new IllegalArgumentException("Liquidação não encontrada"));
+                .orElseThrow(() -> new BusinessException("Liquidação não encontrada"));
 
         settlement.setStatus(SettlementStatus.CONFIRMED);
         settlementRepository.save(settlement);
