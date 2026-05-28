@@ -12,4 +12,6 @@ public interface SettlementRepository extends JpaRepository<Settlement, UUID> {
     List<Settlement> findByGroupId(UUID groupId);
 
     List<Settlement> findByGroupIdAndStatus(UUID groupId, SettlementStatus status);
+
+    void deleteByGroupIdAndStatus(UUID groupId, SettlementStatus status);
 }
