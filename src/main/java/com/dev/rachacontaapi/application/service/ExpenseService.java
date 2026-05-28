@@ -75,14 +75,15 @@ public class ExpenseService {
         BigDecimal share = expense.getAmount()
                 .divide(BigDecimal.valueOf(members.size()), 2, RoundingMode.HALF_UP);
 
-        members.forEach(member -> {
-            ExpenseSplit split = ExpenseSplit.builder()
-                    .expense(expense)
-                    .user(member)
-                    .amountOwed(share)
-                    .build();
-            expenseSplitRepository.save(split);
-        });
+        List<ExpenseSplit> splits = members.stream()
+                .map(member -> ExpenseSplit.builder()
+                        .expense(expense)
+                        .user(member)
+                        .amountOwed(share)
+                        .build())
+                .toList();
+
+        expenseSplitRepository.saveAll(splits);
     }
 
     // Usa os valores customizados enviados na requisição
