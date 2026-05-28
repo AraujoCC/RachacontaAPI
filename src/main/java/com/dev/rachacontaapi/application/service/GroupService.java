@@ -53,7 +53,7 @@ public class GroupService {
     @Transactional(readOnly = true)
     public List<GroupResponse> listMyGroups() {
         User currentUser = getCurrentUser();
-        return groupMemberRepository.findByGroupId(currentUser.getId())
+        return groupMemberRepository.findByUserId(currentUser.getId())
                 .stream()
                 .map(gm -> toResponse(gm.getGroup()))
                 .toList();
