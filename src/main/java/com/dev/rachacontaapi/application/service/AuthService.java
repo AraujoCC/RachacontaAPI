@@ -6,6 +6,7 @@ import com.dev.rachacontaapi.application.dto.response.AuthResponse;
 import com.dev.rachacontaapi.domain.model.User;
 import com.dev.rachacontaapi.infrastructure.repository.UserRepository;
 import com.dev.rachacontaapi.infrastructure.security.JwtUtil;
+import com.dev.rachacontaapi.web.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +24,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email já cadastrado");
+            throw new BusinessException("Email já cadastrado");
         }
 
         User user = User.builder()
@@ -43,7 +44,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
         String token = jwtUtil.generateToken(user.getEmail());
         return new AuthResponse(user.getId(), token, user.getName(), user.getEmail());
