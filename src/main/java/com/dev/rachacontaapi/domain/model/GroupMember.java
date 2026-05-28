@@ -3,6 +3,7 @@ package com.dev.rachacontaapi.domain.model;
 import com.dev.rachacontaapi.domain.enums.GroupRole;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class GroupMember extends BaseEntity {
     @Column(nullable = false, length = 10)
     private GroupRole role;
 
-    @Builder.Default  // ← isso garante que o Builder respeita o valor padrão
+    @CreationTimestamp  // ← isso garante que o Builder respeita o valor padrão
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 }
