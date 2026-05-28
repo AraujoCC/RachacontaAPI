@@ -10,6 +10,7 @@ import com.dev.rachacontaapi.domain.model.User;
 import com.dev.rachacontaapi.infrastructure.repository.GroupMemberRepository;
 import com.dev.rachacontaapi.infrastructure.repository.GroupRepository;
 import com.dev.rachacontaapi.infrastructure.repository.UserRepository;
+import com.dev.rachacontaapi.web.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -64,7 +65,7 @@ public class GroupService {
                 .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
         return toResponse(group);
     }
-    
+
     @Transactional(readOnly = true)
     public List<GroupMemberResponse> listMembers(UUID groupId) {
         return groupMemberRepository.findByGroupId(groupId)
@@ -80,15 +81,23 @@ public class GroupService {
 
     @Transactional
     public void addMember(UUID groupId, UUID userId) {
+        User currentUser = getCurrentUser();
+        GroupMember currentMember = groupMemberRepository.findByGroupIdAndUserId(groupId, currentUser.getId()).orElseThrow(() ->
+        new BusinessException("Usuário não pertence ao grupo"));
+
+        if (currentMember.getRole() != GroupRole.ADMIN) {
+            throw new BusinessException("Apenas administradores podem adicionar membros");
+        }
+
         if (groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
-            throw new IllegalArgumentException("Usuário já é membro do grupo");
+            throw new BusinessException("Usuário já é membro do grupo");
         }
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
+                .orElseThrow(() -> new BusinessException("Grupo não encontrado"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
         GroupMember member = GroupMember.builder()
                 .group(group)
