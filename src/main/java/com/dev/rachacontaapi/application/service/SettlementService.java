@@ -35,6 +35,9 @@ public class SettlementService {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo não encontrado"));
 
+        // limpa settlements pendentes antigos
+        settlementRepository.deleteByGroupIdAndStatus(groupId, SettlementStatus.PENDING);
+
         // 1. Busca total pago e total devido por usuário
         Map<UUID, BigDecimal> totalPaid = toMap(
                 expenseRepository.findTotalPaidPerUserInGroup(groupId)); // ← expenseRepository
