@@ -26,22 +26,17 @@ CREATE TABLE groups
 -- =========================
 CREATE TABLE group_members
 (
-    id        UUID PRIMARY KEY,
-    group_id  UUID        NOT NULL,
-    user_id   UUID        NOT NULL,
-    role      VARCHAR(20) NOT NULL,
-    joined_at TIMESTAMP   NOT NULL DEFAULT NOW(),
+    id         UUID PRIMARY KEY,
+    group_id   UUID        NOT NULL,
+    user_id    UUID        NOT NULL,
+    role       VARCHAR(20) NOT NULL,
+    joined_at  TIMESTAMP   NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP   NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_group_members_group
-        FOREIGN KEY (group_id)
-            REFERENCES groups (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
     CONSTRAINT fk_group_members_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT uk_group_user UNIQUE (group_id, user_id)
 );
 
@@ -59,14 +54,9 @@ CREATE TABLE expenses
     created_at  TIMESTAMP      NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_expenses_group
-        FOREIGN KEY (group_id)
-            REFERENCES groups (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
     CONSTRAINT fk_expenses_paid_by
-        FOREIGN KEY (paid_by)
-            REFERENCES users (id)
-            ON DELETE CASCADE
+        FOREIGN KEY (paid_by) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- =========================
@@ -78,22 +68,17 @@ CREATE TABLE expense_splits
     expense_id  UUID           NOT NULL,
     user_id     UUID           NOT NULL,
     amount_owed DECIMAL(10, 2) NOT NULL,
+    created_at  TIMESTAMP      NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_splits_expense
-        FOREIGN KEY (expense_id)
-            REFERENCES expenses (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (expense_id) REFERENCES expenses (id) ON DELETE CASCADE,
     CONSTRAINT fk_splits_user
-        FOREIGN KEY (user_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT uk_expense_user UNIQUE (expense_id, user_id)
 );
 
 -- =========================
--- SETTLEMENTS (QUITAÇÕES)
+-- SETTLEMENTS
 -- =========================
 CREATE TABLE settlements
 (
@@ -106,17 +91,9 @@ CREATE TABLE settlements
     created_at  TIMESTAMP      NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_settlements_group
-        FOREIGN KEY (group_id)
-            REFERENCES groups (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE,
     CONSTRAINT fk_settlements_payer
-        FOREIGN KEY (payer_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE,
-
+        FOREIGN KEY (payer_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_settlements_receiver
-        FOREIGN KEY (receiver_id)
-            REFERENCES users (id)
-            ON DELETE CASCADE
+        FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
 );
